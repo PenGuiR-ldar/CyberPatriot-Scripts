@@ -1,5 +1,7 @@
- ::Using Double Colon works like a Comment
+::Using Double Colon works like a Comment
 ::Made for CyberPatriot Work & Script Work
+
+::Ronan's CyberScript for Windows & Windows Server
 
 ::Tips: 
 ::Format for Creating Variable w/ User Input: 'set /p [variable-name]=[Words to Prompt User]'
