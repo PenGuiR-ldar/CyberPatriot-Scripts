@@ -1,0 +1,93 @@
+
+Windows Server 2019 CyberPatriot List
+Read ReadMe
+
+
+
+– If you want to add features, go to Control Panel → Program & Features → Turn Windows Features on or off
+Screenshot:
+All Passwords
+Admins & Regular Users
+Neccesary Ports & Services
+
+Read:
+Forensic Questions & Note What things to change
+Update Chrome / Firefox
+
+Change Browser Settings for Security
+
+
+User Account Policies (Control Panel or Settings → Accounts): use Windows Administrative Tools Folder (click Windows Key and scroll down)
+Set Min Password Length → 12
+Ensure Pass Complexity Reqs
+Remove invalid Users & remove admin privileges
+Enable: ‘Do not store passwords using reversible encryption’
+Config Account Lockout Policy
+Ensure Saving of 5+ Passwords in Cache
+(Add Idle Screen for This Computer, which requires a lock) ; make 15mins+ for cyberpatriot
+
+User Rights Policies
+Prevent Access to this computer for only admins/auth users
+Restrict local logon access
+Disable Guest Account; Remove All Privileges & Prevent Running
+Remove RDP from everyone except Admin (unless otherwise stated)
+Check for Unauth access after the previous and look at the Forensics
+
+Misc Policy Settings
+Prevent Uses from Creating / Logging in with Microsoft Accounts
+Require Ctrl+Alt+Del for Login (activates SAS for prevention of Malware Login)
+Config for Security:
+Disable uPnP; SMB Unencrypted; TFTP, FTP, Unencrypted Communication
+Add Idle Activity Time & Forced Communication with MicroNetClient
+Network Access Controls:
+Disable Anonymous Name Translation
+Prevent SAM / SID enumeration and accounts
+Prevent permissions to anonymous users & shares from being accessed anonymously
+
+Network Security:
+Allows Kerberos; Enable Windows Firewall
+Enable Windows Firewall everywhere [Control Panel]
+Uninstall Malware Apps or Not Allowed apps
+
+Windows Firewall (IMPLICIT DENY)
+- Restrict RDP services unless prompted otherwise
+- Remove Unidentifiable Allows
+- Turn on in the Control Panel for both networks
+
+AD Domain Security:
+- Encrypt, Secure, and Sign Data and Channel Information
+
+Audit Stuff:
+Account Logon
+Account Management
+Logon/off Audit Policy
+Event & Policy Audits
+Privilege Use Audits
+
+
+Scan through Task Manager & Control Panel for belligerent processes
+Bash Shell
+
+Disable Remote Registry Access, RDP Computer Access & UAC Permissions
+
+
+Windows Firewall
+- Scan System for Suspicious Items
+- Update In Windows Update Settings
+- Boot through Safe Mode (Here)
+
+Remove Music/non-work files from all systems (search all through: *.---------
+
+
+
+Clean & Search Registry (Intro): regedit (
+
+Set BIOS Password
+Configure Device Boot Order
+
+Download MalwareBytes?
+
+—----------
+
+Windows Server .bat Script
+bat
