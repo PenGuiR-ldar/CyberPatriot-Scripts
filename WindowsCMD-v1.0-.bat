@@ -63,43 +63,48 @@ echo Force Logoff, Unique Password Cache, Complexity Reqs
 ::how long until expired/deleted accounts are forced logged off
 net accounts /forcelogoff:5
 
-::how many unique passwords before reuse
+::Change Unique Passwords Required Until Re-Use
 net accounts /uniquepw:10
 
-::Turn on Complexity Reqs
+:: Turn on Complexity Reqs
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t REG_DWORD /d 1 /f
-
 
 ::auditpol (Audit Policies --> Configuration Command); && runs only if the last worked; ensure that the system supports it
 
-echo Audit Policy Configurations
-
-
+:: Audit Policy Configurations
 auditpol /set /category:* /success:enable /failure:enable
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
-::User Rights Assignment Policies
+:: Enable Secondary Firewalls (if any)
+Netsh Advfirewall set allprofiles state on
 
-::Nothing...Yet
+netsh advfirewall set currentprofile logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log
+netsh advfirewall set currentprofile logging maxfilesize 4096
+netsh advfirewall set currentprofile logging droppedconnections enable
 
+:: Enable WindowsDef Network Protection
+powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
 
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
+
 :: DOESNT WORK --> "%ProgramFiles%\Npcap\uninstall.exe" /S
+
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
 
 :: DOESNT WORK → %ProgramFiles%\BitTorrent\uninstall.exe /S
 
 ::--------------------------Service Disabling—-------------------------------::
-::FTP Service
+:: FTP Service
 sc stop ftpsvc
 sc config ftpsvc start= disabled
 
-::Plug n Play
+: :Plug n Play
 sc stop PlugPlay
 sc config PlugPlay start= manual
 
-::Remote Registry
+: :Remote Registry
 sc stop RemoteRegistry
 sc config RemoteRegistry start= disabled
 
@@ -107,7 +112,7 @@ sc config RemoteRegistry start= disabled
 sc stop SMTPSVC
 sc config SMTPSVC start= disabled
 
-::SNMP Trap
+:: SNMP Trap
 sc stop SNMPTRAP
 sc config SNMPTRAP start= disabled
 
@@ -136,17 +141,17 @@ net user guest /active:no
 echo Doing Background work.....
 
 ::Found Files
-echo. > susfile_.txt
+echo Space > susfile_.txt
 
-::echo ==== All Found Music Files (if any) =====
+:: ==== All Found Music Files (if any) =====
 
 dir C:\Users\*.mp3 /s /b >> susfile_.txt
 
-::echo ==== All Found .Exe Files (if any need to be removed) ====
+:: ==== All Found .Exe Files (if any need to be removed) ====
 echo .exe files >> susfile_.txt
 dir C:\Users\*.exe /s /b >> susfile_.txt
 
-::echo ==== Other .bat Files (probs remove) ====
+:: ==== Other .bat Files (probs remove) ====
 
 echo .bat files >> susfile_.txt
 dir C:\*.bat /s /b >> susfile_.txt
@@ -176,13 +181,25 @@ echo Important Information Results saved to susfile_.txt
 
 ::-------------------Installing Security Software-------------------::
 
-::Check for Updates
+:: Check for Updates
 wuauclt.exe /detectnow
+
+:: Force Windows Defender Sandbox
+setx /M MP_FORCE_USE_SANDBOX 1
+
+:: Update Windows Def. Signatures
+"%ProgramFiles%"\"Windows Defender"\MpCmdRun.exe -SignatureUpdate
+
+::Enable Periodic Scanning
+reg add "HKCU\SOFTWARE\Microsoft\Windows Defender" /v Passive Mode /t REG_DWORD /d 2 /f
+
 
 ::-----------------Windows Update & Other Settings------------------::
 
 
-::The command 'explorer ms-settings' [] allows for me to go through Windows Settings, or do actions while opening the GUI
+:: The command 'explorer ms-settings' opens the GUI --> ENABL SmartScreen - Edge Phishing Protector
+reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v EnabledV9 /t REG_DWORD /d 1 /f
+
 
 
 ::timeout is basically time.sleep(x)
@@ -192,8 +209,7 @@ timeout 5
 echo Redirecting You --> Update Options
 explorer ms-settings:windowsupdate-options
 
-::Prevents Batch File from Immeadiately closing when finished
-:: 'If needed' PAUSE
+PAUSE
 
 
  
