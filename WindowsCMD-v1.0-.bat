@@ -82,13 +82,17 @@ netsh advfirewall set currentprofile logging filename %systemroot%\system32\LogF
 netsh advfirewall set currentprofile logging maxfilesize 4096
 netsh advfirewall set currentprofile logging droppedconnections enable
 
+::Log Dropped Connections & Configure Firewall IPsec --> Enable Dynamic Firewall Adjustments
+netsh advfirewall set allprofiles droppedconnections on
+netsh advfirewall set global statfulftp enable
+netsh advfirewall set global statefulpptp enable
+
+
 :: Enable WindowsDef Network Protection
 powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
 
 ::Enforce Device Driver Signing
 BCDEDIT /set nointegritychecks OFF
-
-
 
 :: Stops Macros and Enables Safe Mode
 reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
@@ -102,12 +106,15 @@ reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options\WordMail" /v DontUpdat
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
 
-:: DOESNT WORK --> "%ProgramFiles%\Npcap\uninstall.exe" /S
+:: DOESNT WORK --> 
+"%ProgramFiles%\npcap.exe" /S
 
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
 
-:: DOESNT WORK → %ProgramFiles%\BitTorrent\uninstall.exe /S
+:: DOESNT WORK → 
 
+%ProgramFiles%\BitTorrent\uninstall.exe /S
+%ProgramFiles%\BitTorrent\unins000.exe /S
 ::--------------------------Service Disabling—-------------------------------::
 :: FTP Service
 sc stop ftpsvc
@@ -176,9 +183,10 @@ dir "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup" /s /b >> susfi
 ::Open Ports
 netstat -ano >> susfile_.txt
 
-::echo Powershell Firewall Configurations
+::Powershell Firewall Configurations
 
-powershell -Command "Set-MpPreference -DisableRealtimeMonitoring 0; Start-Service WinDefend"
+powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
+reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
 ::To check that it's up and running
 
 ::Window Defender Firewall
@@ -213,6 +221,11 @@ reg add "HKCU\SOFTWARE\Microsoft\Windows Defender" /v Passive Mode /t REG_DWORD 
 :: The command 'explorer ms-settings' opens the GUI --> ENABL SmartScreen - Edge Phishing Protector
 reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v EnabledV9 /t REG_DWORD /d 1 /f
 
+::Enabling EncryptedFileSystem Encryption
+fsutil behavior set disableencryption 0
+if "fsutil behavior query disableencryption" == 0 (
+echo Successfully Enabled EFS. Restart to Take Affect...) 
+else (echo Failed to Enable EFS on the Provided Windows System)
 
 
 ::timeout is basically time.sleep(x)
@@ -223,7 +236,3 @@ echo Redirecting You --> Update Options
 explorer ms-settings:windowsupdate-options
 
 PAUSE
-
-
- 
-
