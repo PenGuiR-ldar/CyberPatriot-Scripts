@@ -203,7 +203,7 @@ echo Important Information Results saved to susfile_.txt
 ::-------------------Installing Security Software-------------------::
 
 :: Check for Updates
-wuauclt.exe /detectnow
+wuauclt.exe /detectnow /updatenow
 
 :: Force Windows Defender Sandbox
 setx /M MP_FORCE_USE_SANDBOX 1
