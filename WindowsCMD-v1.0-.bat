@@ -32,7 +32,7 @@ echo Displaying Total Users
 
 net localgroup users
 
-set /p UserRemove=Name a invalid or bad user: 
+set /p UserRemove=Name an invalid or bad user: 
 
 :Press 'space' then 'backspace' to not do anything::
 
@@ -84,6 +84,19 @@ netsh advfirewall set currentprofile logging droppedconnections enable
 
 :: Enable WindowsDef Network Protection
 powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
+
+::Enforce Device Driver Signing
+BCDEDIT /set nointegritychecks OFF
+
+
+
+:: Stops Macros and Enables Safe Mode
+reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
+reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
+reg add "HKCU\Software\Microsoft\Office\15.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
+reg add "HKCU\Software\Microsoft\Office\15.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
+reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
+reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
 
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
