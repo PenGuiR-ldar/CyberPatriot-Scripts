@@ -229,12 +229,17 @@ if "fsutil behavior query disableencryption" == 0 (
 echo Successfully Enabled EFS. Restart to Take Affect...) 
 else (echo Failed to Enable EFS on the Provided Windows System)
 
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
+netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
 
 ::timeout is basically time.sleep(x)
 timeout 5
 
 
-echo Redirecting You --> Update Options
+echo Redirecting You --> Update Options and RDP with Remote Assistance
+
+SystemPropertiesRemote.exe
+
 explorer ms-settings:windowsupdate-options
 
 PAUSE
