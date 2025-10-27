@@ -205,6 +205,8 @@ echo Important Information Results saved to susfile_.txt
 :: Check for Updates
 wuauclt.exe /detectnow /updatenow
 
+
+
 :: Force Windows Defender Sandbox
 setx /M MP_FORCE_USE_SANDBOX 1
 
@@ -236,3 +238,4 @@ echo Redirecting You --> Update Options
 explorer ms-settings:windowsupdate-options
 
 PAUSE
+
