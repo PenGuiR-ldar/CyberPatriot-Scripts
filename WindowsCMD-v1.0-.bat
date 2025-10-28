@@ -1,11 +1,6 @@
- ::Using Double Colon works like a Comment
 ::Made for CyberPatriot Work & Script Work
-
-::Tips: 
 ::Format for Creating Variable w/ User Input: 'set /p [variable-name]=[Words to Prompt User]'
 
-
-:: The '@' symbol prevents the batch file from printing commands;neither this one
 @echo off
 
 echo CyberPatriot: Windows Server 2022 Script (September)
@@ -15,16 +10,22 @@ echo CyberPatriot: Windows Server 2022 Script (September)
 
 echo Displaying Users w/ Admin
 
+::-----Administator Function-----::
+:incorrect_admins
 net localgroup administrators
-
 set /p AdminRemove=Name an incorrect Administrator: 
 
 ::Press Enter to Skip Removing Admins::
-
-if "%AdminRemove%"=="" (echo No User Specified, Skipping Removal...) else (
-echo Removing %AdminRemove%
+if "%AdminRemove%"=="" (echo No User Specified, Skipping Removal...) else ( 
+echo Removing %AdminRemove% 
 net localgroup administrators "%AdminRemove%" /delete
 )
+exit /B 0
+::---------End of Admin Function----::
+goto incorrect_admins
+
+set /p restartvalues=Any Other Admins to Remove? 
+if "%restartvalues%"=="y"(call incorrect_admins) else (echo Exitting Admin Function)
 
 ::----------------------------Removing Users w/out Admin------------------------::
 
@@ -34,7 +35,7 @@ net localgroup users
 
 set /p UserRemove=Name an invalid or bad user: 
 
-:Press 'space' then 'backspace' to not do anything::
+::Press 'space' then 'backspace' to not do anything::
 
 if "%UserRemove%"=="" (echo No User Specified, Skipping Removal..) else (
 echo Removing "%UserRemove%"
