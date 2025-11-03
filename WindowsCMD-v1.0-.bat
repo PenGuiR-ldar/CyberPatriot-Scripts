@@ -14,7 +14,7 @@ echo CyberPatriot: Windows Server 2022 Script (September)
 ::------------------------Removing Users--------------------------------::
 
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
-explorer:ms-settings:otherusers
+explorer ms-settings:otherusers
 
 ::--------------------Misc Policies-----------------------------------::
 
@@ -217,10 +217,9 @@ explorer ms-settings:sync
 echo Redirecting You --> Update Options and RDP with Remote Assistance
 
 SystemPropertiesRemote.exe
-timeout 3
+timeout 10
 explorer ms-settings:windowsupdate-action
 timeout 2
 explorer ms-settings:windowsupdate-options
 
 PAUSE
-
