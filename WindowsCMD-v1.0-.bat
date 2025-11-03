@@ -11,46 +11,17 @@
 echo CyberPatriot: Windows Server 2022 Script (September)
 
 
-::------------------------Removing Users w/ Admin--------------------------------::
+::------------------------Removing Users--------------------------------::
 
-echo Displaying Users w/ Admin
-
-net localgroup administrators
-
-set /p AdminRemove=Name an incorrect Administrator: 
-
-::Press Enter to Skip Removing Admins::
-
-if "%AdminRemove%"=="" (echo No User Specified, Skipping Removal...) else (
-echo Removing %AdminRemove%
-net localgroup administrators "%AdminRemove%" /delete
-)
-
-::----------------------------Removing Users w/out Admin------------------------::
-
-echo Displaying Total Users
-
-net localgroup users
-
-set /p UserRemove=Name an invalid or bad user: 
-
-:Press 'space' then 'backspace' to not do anything::
-
-if "%UserRemove%"=="" (echo No User Specified, Skipping Removal..) else (
-echo Removing "%UserRemove%"
-net localgroup users "%UserRemove%" /delete
-)
-
+:: Allows for Manipulation without Excess Code Storage & Need for Error Checking
+explorer:ms-settings:otherusers
 
 ::--------------------Misc Policies-----------------------------------::
 
-echo Turning On All Firewalls!
-netsh advfirewall set currentprofile state on
-netsh advfirewall set domainprofile state on
-netsh advfirewall set privateprofile state on
+::Enforce Device Driver Signing
+BCDEDIT /set nointegritychecks OFF
 
 echo Security Time-Outs....
-
 net accounts /lockoutthreshold:5
 net accounts /lockoutduration:31
 net accounts /maxpwage:90
@@ -66,6 +37,10 @@ net accounts /forcelogoff:5
 ::Change Unique Passwords Required Until Re-Use
 net accounts /uniquepw:10
 
+::Enable SMB Signing Requirements
+powershell.exe Set-SmbClientConfiguration -RequireSecuritySignature $true
+powershell.exe Set-SmbServerConfiguration -RequireSecuritySignature $true
+
 :: Turn on Complexity Reqs
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t REG_DWORD /d 1 /f
 
@@ -75,25 +50,6 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t R
 auditpol /set /category:* /success:enable /failure:enable
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
-:: Enable Secondary Firewalls (if any)
-Netsh Advfirewall set allprofiles state on
-
-netsh advfirewall set currentprofile logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log
-netsh advfirewall set currentprofile logging maxfilesize 4096
-netsh advfirewall set currentprofile logging droppedconnections enable
-
-::Log Dropped Connections & Configure Firewall IPsec --> Enable Dynamic Firewall Adjustments
-netsh advfirewall set allprofiles droppedconnections on
-netsh advfirewall set global statfulftp enable
-netsh advfirewall set global statefulpptp enable
-
-
-:: Enable WindowsDef Network Protection
-powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
-
-::Enforce Device Driver Signing
-BCDEDIT /set nointegritychecks OFF
-
 :: Stops Macros and Enables Safe Mode
 reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
 reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
@@ -102,6 +58,29 @@ reg add "HKCU\Software\Microsoft\Office\15.0\Word\Options\WordMail" /v DontUpdat
 reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
 reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
 
+
+echo Turning On All Firewalls!
+netsh advfirewall set currentprofile state on
+netsh advfirewall set domainprofile state on
+netsh advfirewall set privateprofile state on
+
+:: Enable Secondary Firewalls (if any)
+Netsh Advfirewall set allprofiles state on
+
+netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log
+netsh advfirewall set allprofiles logging maxfilesize 4096
+netsh advfirewall set allprofiles logging droppedconnections enable
+
+::Log Dropped Connections & Configure Firewall IPsec --> Enable Dynamic Firewall Adjustments
+netsh advfirewall set allprofiles droppedconnections on
+netsh advfirewall set global statfulftp enable
+netsh advfirewall set global statefulpptp enable
+
+:: Enable Windows Defender Network Protection
+powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
+
+::Disable NetBios over TCP
+powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
@@ -115,6 +94,7 @@ reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options\WordMail" /v DontUpdat
 
 %ProgramFiles%\BitTorrent\uninstall.exe /S
 %ProgramFiles%\BitTorrent\unins000.exe /S
+
 ::--------------------------Service Disabling—-------------------------------::
 :: FTP Service
 sc stop ftpsvc
@@ -155,7 +135,6 @@ sc config wuauserv start= auto
 
 ::--------------------Searching Directories for Programs & Music--------------::
 
-
 net user guest /active:no
 
 echo Doing Background work.....
@@ -184,9 +163,9 @@ dir "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup" /s /b >> susfi
 netstat -ano >> susfile_.txt
 
 ::Powershell Firewall Configurations
-
 powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
+
 ::To check that it's up and running
 
 ::Window Defender Firewall
@@ -199,13 +178,10 @@ sc config WinDefend start= auto
 
 echo Important Information Results saved to susfile_.txt
 
-
 ::-------------------Installing Security Software-------------------::
 
 :: Check for Updates
 wuauclt.exe /detectnow /updatenow
-
-
 
 :: Force Windows Defender Sandbox
 setx /M MP_FORCE_USE_SANDBOX 1
@@ -218,7 +194,6 @@ reg add "HKCU\SOFTWARE\Microsoft\Windows Defender" /v Passive Mode /t REG_DWORD 
 
 
 ::-----------------Windows Update & Other Settings------------------::
-
 
 :: The command 'explorer ms-settings' opens the GUI --> ENABL SmartScreen - Edge Phishing Protector
 reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v EnabledV9 /t REG_DWORD /d 1 /f
@@ -235,11 +210,16 @@ netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
 ::timeout is basically time.sleep(x)
 timeout 5
 
+::Sync Settings as Needed
+explorer ms-settings:sync
+
 
 echo Redirecting You --> Update Options and RDP with Remote Assistance
 
 SystemPropertiesRemote.exe
-
+timeout 3
+explorer ms-settings:windowsupdate-action
+timeout 2
 explorer ms-settings:windowsupdate-options
 
 PAUSE
