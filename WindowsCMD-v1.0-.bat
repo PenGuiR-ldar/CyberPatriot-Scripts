@@ -44,6 +44,9 @@ powershell.exe Set-SmbServerConfiguration -RequireSecuritySignature $true
 :: Turn on Complexity Reqs
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t REG_DWORD /d 1 /f
 
+::Session Idle Timeouts & Limits
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v MaxIdleTime /t REG_DWORD /d 900000 /f
+
 ::auditpol (Audit Policies --> Configuration Command); && runs only if the last worked; ensure that the system supports it
 
 :: Audit Policy Configurations
@@ -204,8 +207,10 @@ if "fsutil behavior query disableencryption" == 0 (
 echo Successfully Enabled EFS. Restart to Take Affect...) 
 else (echo Failed to Enable EFS on the Provided Windows System)
 
+::Prevent Remote Assistance
 REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
+
 
 ::timeout is basically time.sleep(x)
 timeout 5
@@ -213,13 +218,14 @@ timeout 5
 ::Sync Settings as Needed
 explorer ms-settings:sync
 
+gpupdate /force
 
 echo Redirecting You --> Update Options and RDP with Remote Assistance
-
 SystemPropertiesRemote.exe
+
 timeout 10
 explorer ms-settings:windowsupdate-action
-timeout 2
+timeout 4
 explorer ms-settings:windowsupdate-options
 
 PAUSE
