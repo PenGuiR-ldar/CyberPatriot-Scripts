@@ -213,7 +213,7 @@ netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
 
 
 ::timeout is basically time.sleep(x)
-timeout 5
+timeout 500
 
 ::Sync Settings as Needed
 explorer ms-settings:sync
@@ -223,9 +223,9 @@ gpupdate /force
 echo Redirecting You --> Update Options and RDP with Remote Assistance
 SystemPropertiesRemote.exe
 
-timeout 10
+timeout 100
 explorer ms-settings:windowsupdate-action
-timeout 4
+timeout 40
 explorer ms-settings:windowsupdate-options
 
 PAUSE
