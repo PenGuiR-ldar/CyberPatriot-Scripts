@@ -113,7 +113,6 @@ SeUndockPrivilege = *S-1-5-113,*S-1-5-32-544
 "WinDefend",2,""
 "gupdate",2,""
 "gupdatem",2,""
-"CCS Client",2,""
 [Registry Values]
 MACHINE\System\CurrentControlSet\Control\Lsa\CrashOnAuditFail=4,0
 MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0\ClientAllowedNTLMServers=7,
