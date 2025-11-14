@@ -1,4 +1,4 @@
- ::Using Double Colon works like a Comment
+::Using Double Colon works like a Comment
 ::Made for CyberPatriot Work & Script Work
 
 ::Tips: 
@@ -67,9 +67,6 @@ netsh advfirewall set currentprofile state on
 netsh advfirewall set domainprofile state on
 netsh advfirewall set privateprofile state on
 
-:: Enable Secondary Firewalls (if any)
-Netsh Advfirewall set allprofiles state on
-
 netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log
 netsh advfirewall set allprofiles logging maxfilesize 4096
 netsh advfirewall set allprofiles logging droppedconnections enable
@@ -80,7 +77,7 @@ netsh advfirewall set global statfulftp enable
 netsh advfirewall set global statefulpptp enable
 
 :: Enable Windows Defender Network Protection
-powershell.exe Set-MpPreference -Enable NetworkProtection Enabled
+powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 
 ::Disable NetBios over TCP
 powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
@@ -90,11 +87,7 @@ powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnable
 
 :: DOESNT WORK --> 
 "%ProgramFiles%\npcap.exe" /S
-
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
-
-:: DOESNT WORK → 
-
 %ProgramFiles%\BitTorrent\uninstall.exe /S
 %ProgramFiles%\BitTorrent\unins000.exe /S
 
@@ -103,7 +96,7 @@ powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnable
 sc stop ftpsvc
 sc config ftpsvc start= disabled
 
-: :Plug n Play
+::Plug n Play
 sc stop PlugPlay
 sc config PlugPlay start= manual
 
@@ -175,6 +168,8 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v Disab
 sc start mpssvc
 sc config mpssvc start= auto
 
+::Access is denied Open Service
+
 ::Microsoft Defender Antivirus Service
 sc start WinDefend
 sc config WinDefend start= auto
@@ -203,20 +198,14 @@ reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v Enabl
 
 ::Enabling EncryptedFileSystem Encryption
 fsutil behavior set disableencryption 0
-if "fsutil behavior query disableencryption" == 0 (
-echo Successfully Enabled EFS. Restart to Take Affect...) 
-else (echo Failed to Enable EFS on the Provided Windows System)
 
 ::Prevent Remote Assistance
-REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
 
 
 ::timeout is basically time.sleep(x)
 timeout 500
-
-::Sync Settings as Needed
-explorer ms-settings:sync
 
 gpupdate /force
 
