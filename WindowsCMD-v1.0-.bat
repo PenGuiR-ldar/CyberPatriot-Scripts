@@ -71,7 +71,7 @@ netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFile
 netsh advfirewall set allprofiles logging maxfilesize 4096
 netsh advfirewall set allprofiles logging droppedconnections enable
 
-::Log Dropped Connections & Configure Firewall IPsec --> Enable Dynamic Firewall Adjustments
+echo Log Dropped Connections & Configure Firewall IPsec to Enable Dynamic Firewall Adjustments
 netsh advfirewall set allprofiles droppedconnections on
 netsh advfirewall set global statfulftp enable
 netsh advfirewall set global statefulpptp enable
@@ -84,12 +84,11 @@ powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnable
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
-
-:: DOESNT WORK --> 
+::Test the Below
 "%ProgramFiles%\npcap.exe" /S
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
-%ProgramFiles%\BitTorrent\uninstall.exe /S
-%ProgramFiles%\BitTorrent\unins000.exe /S
+"%ProgramFiles%\BitTorrent\uninstall.exe" /S
+"%ProgramFiles%\BitTorrent\unins000.exe" /S
 
 ::--------------------------Service Disabling—-------------------------------::
 :: FTP Service
@@ -204,17 +203,13 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGet
 netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
 
 
-::timeout is basically time.sleep(x)
-timeout 500
+::timeout is basically time.sleep(x) [timeout 500]
 
 gpupdate /force
 
 echo Redirecting You --> Update Options and RDP with Remote Assistance
 SystemPropertiesRemote.exe
 
-timeout 100
 explorer ms-settings:windowsupdate-action
-timeout 40
-explorer ms-settings:windowsupdate-options
 
 PAUSE
