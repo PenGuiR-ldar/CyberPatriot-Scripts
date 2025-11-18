@@ -5,16 +5,20 @@
 ::Format for Creating Variable w/ User Input: 'set /p [variable-name]=[Words to Prompt User]'
 
 
-:: The '@' symbol prevents the batch file from printing commands;neither this one
+:: The '@' symbol prevents the batch file from printing commands; neither this one
 @echo off
 
 echo CyberPatriot: Windows Server 2022 Script (September)
-
+::Command to find the Type of Windows System you are
+systeminfo | findstr /B /C:"OS Name"
 
 ::------------------------Removing Users--------------------------------::
 
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
 explorer ms-settings:otherusers
+
+::Should Clear Cache (Cookies, Cached Files, History, Autofill)
+rd /s /q "%LocalAppData%\Microsoft\Edge\User Data\Default"
 
 ::--------------------Misc Policies-----------------------------------::
 
@@ -81,6 +85,7 @@ powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 
 ::Disable NetBios over TCP
 powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
+ipconfig /flushdns
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
