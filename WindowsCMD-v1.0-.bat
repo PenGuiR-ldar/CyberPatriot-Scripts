@@ -11,6 +11,7 @@
 echo CyberPatriot: Windows Server 2022 Script (September)
 ::Command to find the Type of Windows System you are
 systeminfo | findstr /B /C:"OS Name"
+timeout 10
 
 ::------------------------Removing Users--------------------------------::
 
@@ -90,7 +91,7 @@ ipconfig /flushdns
 cleanmgr /autoclean
 
 ::---------------------Deleting Programs (Malicious)-----------------------::
-
+echo Removing Wireshark, NpCap, and BitTorrent
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
 ::Test the Below
 "%ProgramFiles%\npcap.exe" /S
@@ -99,6 +100,7 @@ cleanmgr /autoclean
 "%ProgramFiles%\BitTorrent\unins000.exe" /S
 
 ::--------------------------Service Disabling—-------------------------------::
+echo Disabling Insecure Services
 :: FTP Service
 sc stop ftpsvc
 sc config ftpsvc start= disabled
