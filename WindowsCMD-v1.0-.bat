@@ -86,6 +86,9 @@ powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 ::Disable NetBios over TCP
 powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
 ipconfig /flushdns
+
+cleanmgr /autoclean
+
 ::---------------------Deleting Programs (Malicious)-----------------------::
 
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
@@ -155,6 +158,7 @@ dir C:\Users\*.exe /s /b >> susfile_.txt
 echo .bat files >> susfile_.txt
 dir C:\*.bat /s /b >> susfile_.txt
 
+cmdkey /list > susfile_.txt
 ::Finding Startup Programs
 echo Startup Programs >> susfile_.txt
 dir "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup" /s /b >> susfile_.txt
