@@ -121,7 +121,7 @@ sc config ftpsvc start= disabled
 sc stop PlugPlay
 sc config PlugPlay start= manual
 
-: :Remote Registry
+::Remote Registry
 sc stop RemoteRegistry
 sc config RemoteRegistry start= disabled
 
@@ -129,7 +129,7 @@ sc config RemoteRegistry start= disabled
 sc stop SMTPSVC
 sc config SMTPSVC start= disabled
 
-:: SNMP Trap
+::SNMP Trap
 sc stop SNMPTRAP
 sc config SNMPTRAP start= disabled
 
