@@ -11,17 +11,15 @@
 echo CyberPatriot: Windows Server 2022 Script (September)
 ::Command to find the Type of Windows System you are
 systeminfo | findstr /B /C:"OS Name"
-timeout 10
+timeout 3
 
 ::------------------------Removing Users--------------------------------::
 
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
+echo Redirecting you to Other Users in Settings
 explorer ms-settings:otherusers
-
+timeout 1
 ::--------------------Misc Policies-----------------------------------::
-
-::Enforce Device Driver Signing
-BCDEDIT /set nointegritychecks OFF
 
 echo Security Time-Outs....
 net accounts /lockoutthreshold:5
@@ -40,6 +38,7 @@ net accounts /forcelogoff:5
 net accounts /uniquepw:10
 
 ::Enable SMB Signing Requirements
+echo SMB Client and Server Configurations
 powershell.exe Set-SmbClientConfiguration -RequireSecuritySignature $true
 powershell.exe Set-SmbServerConfiguration -RequireSecuritySignature $true
 
@@ -73,8 +72,8 @@ netsh advfirewall set allprofiles logging filename %systemroot%\system32\LogFile
 netsh advfirewall set allprofiles logging maxfilesize 4096
 netsh advfirewall set allprofiles logging droppedconnections enable
 
-echo Log Dropped Connections & Configure Firewall IPsec to Enable Dynamic Firewall Adjustments
-netsh advfirewall set allprofiles droppedconnections on
+echo Log Dropped Connections and Configure Firewall IPsec to Enable Dynamic Firewall Adjustments
+netsh advfirewall set allprofiles logging droppedconnections enable
 netsh advfirewall set global statfulftp enable
 netsh advfirewall set global statefulpptp enable
 
@@ -85,6 +84,7 @@ powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
 
 ::Flush DNS and Auto-Clean
+echo Flushing DNS and Establishing Auto Cleaning Services
 ipconfig /flushdns
 cleanmgr /autoclean
 
@@ -105,11 +105,9 @@ sc config WinDefend start= auto
 ::---------------------Deleting Programs (Malicious)-----------------------::
 echo Removing Wireshark, Npcap, and BitTorrent
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
-::Test the Below
-"%ProgramFiles%\npcap.exe" /S
+"%ProgramFiles%\Npcap\npcap.exe" /S
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
 "%ProgramFiles%\BitTorrent\uninstall.exe" /S
-"%ProgramFiles%\BitTorrent\unins000.exe" /S
 
 ::--------------------------Service Disabling—-------------------------------::
 echo Disabling Insecure Services
@@ -118,7 +116,8 @@ sc stop ftpsvc
 sc config ftpsvc start= disabled
 
 ::Plug n Play
-sc stop PlugPlay
+if ("sc query "PlugPlay" | find "RUNNING"" = "RUNNING") {
+sc stop PlugPlay}
 sc config PlugPlay start= manual
 
 ::Remote Registry
@@ -157,20 +156,12 @@ net user guest /active:no
 echo Doing Background work.....
 
 ::Removing Files in the Public Accessible Directory
-rm -i C:\Users\Public\Documents\*.zip
-rm -i C:\Users\Public\Documents\*.txt
 
-rm -i C:\Users\Public\Music\*.mp3
-rm -i C:\Users\Public\Music\*..mp4
-
-rm -i C:\Users\Public\Pictures\*.jpg
-rm -i C:\Users\Public\Pictures\*.png
-rm -i C:\Users\Public\Pictures\*.jpeg
-
-rm -i C:\Users\Public\Downloads\*.txt
-rm -i C:\Users\Public\Downloads\*.zip
-
-rm -i C:\Users\Public\Videos\*.mp4
+del /S C:\Users\Public\Documents\*
+del /S C:\Users\Public\Music\*
+del /S C:\Users\Public\Pictures\*
+del /S C:\Users\Public\Downloads\*
+del /S C:\Users\Public\Videos\*
 
 echo Important Information Results saved to susfile_.txt
 
@@ -197,22 +188,19 @@ reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v Enabl
 ::Enabling EncryptedFileSystem Encryption
 fsutil behavior set disableencryption 0
 
-::Prevent Remote Assistance
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
-netsh advfirewall firewall set rule group="Remote Assistance" new enable=no
-
+::Enforce Device Driver Signing
+BCDEDIT /set nointegritychecks OFF
 
 ::timeout is basically time.sleep(x) [timeout 500]
 
-gpupdate /force
-
-echo Redirecting You --> Update Options and RDP with Remote Assistance
+echo Redirecting You to Update Options and RDP with Remote Assistance
 SystemPropertiesRemote.exe
 
+::Prevent Remote Assistance
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 
 explorer ms-settings:windowsupdate-action
+
 echo Completed Script!
-
-
 
 PAUSE
