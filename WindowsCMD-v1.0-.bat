@@ -18,9 +18,6 @@ timeout 10
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
 explorer ms-settings:otherusers
 
-::Should Clear Cache (Cookies, Cached Files, History, Autofill)
-rd /s /q "%LocalAppData%\Microsoft\Edge\User Data\Default"
-
 ::--------------------Misc Policies-----------------------------------::
 
 ::Enforce Device Driver Signing
@@ -86,12 +83,27 @@ powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 
 ::Disable NetBios over TCP
 powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
-ipconfig /flushdns
 
+::Flush DNS and Auto-Clean
+ipconfig /flushdns
 cleanmgr /autoclean
 
+::Powershell Firewall Configurations
+powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
+reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
+
+::To check that it's up and running
+
+::Window Defender Firewall
+sc start mpssvc
+sc config mpssvc start= auto
+
+::Microsoft Defender Antivirus Service
+sc start WinDefend
+sc config WinDefend start= auto
+
 ::---------------------Deleting Programs (Malicious)-----------------------::
-echo Removing Wireshark, NpCap, and BitTorrent
+echo Removing Wireshark, Npcap, and BitTorrent
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
 ::Test the Below
 "%ProgramFiles%\npcap.exe" /S
@@ -144,45 +156,21 @@ net user guest /active:no
 
 echo Doing Background work.....
 
-::Found Files
-echo Space > susfile_.txt
+::Removing Files in the Public Accessible Directory
+rm -i C:\Users\Public\Documents\*.zip
+rm -i C:\Users\Public\Documents\*.txt
 
-:: ==== All Found Music Files (if any) =====
+rm -i C:\Users\Public\Music\*.mp3
+rm -i C:\Users\Public\Music\*..mp4
 
-dir C:\Users\*.mp3 /s /b >> susfile_.txt
+rm -i C:\Users\Public\Pictures\*.jpg
+rm -i C:\Users\Public\Pictures\*.png
+rm -i C:\Users\Public\Pictures\*.jpeg
 
-:: ==== All Found .Exe Files (if any need to be removed) ====
-echo .exe files >> susfile_.txt
-dir C:\Users\*.exe /s /b >> susfile_.txt
+rm -i C:\Users\Public\Downloads\*.txt
+rm -i C:\Users\Public\Downloads\*.zip
 
-:: ==== Other .bat Files (probs remove) ====
-
-echo .bat files >> susfile_.txt
-dir C:\*.bat /s /b >> susfile_.txt
-
-cmdkey /list > susfile_.txt
-::Finding Startup Programs
-echo Startup Programs >> susfile_.txt
-dir "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup" /s /b >> susfile_.txt
-
-::Open Ports
-netstat -ano >> susfile_.txt
-
-::Powershell Firewall Configurations
-powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
-reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
-
-::To check that it's up and running
-
-::Window Defender Firewall
-sc start mpssvc
-sc config mpssvc start= auto
-
-::Access is denied Open Service
-
-::Microsoft Defender Antivirus Service
-sc start WinDefend
-sc config WinDefend start= auto
+rm -i C:\Users\Public\Videos\*.mp4
 
 echo Important Information Results saved to susfile_.txt
 
@@ -221,6 +209,10 @@ gpupdate /force
 echo Redirecting You --> Update Options and RDP with Remote Assistance
 SystemPropertiesRemote.exe
 
+
 explorer ms-settings:windowsupdate-action
+echo Completed Script!
+
+
 
 PAUSE
