@@ -48,10 +48,9 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t R
 ::Session Idle Timeouts & Limits
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v MaxIdleTime /t REG_DWORD /d 900000 /f
 
-::auditpol (Audit Policies --> Configuration Command); && runs only if the last worked; ensure that the system supports it
-
 :: Audit Policy Configurations
-auditpol /set /category:* /success:enable /failure:enable
+auditpol /set /category:* /success:enable /success:enable
+auditpol /set /subcategory:* /success:enable /failure:enable
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
 :: Stops Macros and Enables Safe Mode
@@ -91,8 +90,6 @@ cleanmgr /autoclean
 ::Powershell Firewall Configurations
 powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
 reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
-
-::To check that it's up and running
 
 ::Window Defender Firewall
 sc start mpssvc
@@ -147,7 +144,6 @@ sc config Sense start= auto
 ::Windows Auto-Update Service
 sc start wuauserv
 sc config wuauserv start= auto
-
 
 ::--------------------Searching Directories for Programs & Music--------------::
 
