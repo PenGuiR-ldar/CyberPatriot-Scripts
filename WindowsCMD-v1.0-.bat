@@ -18,6 +18,7 @@ timeout 3
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
 echo Redirecting you to Other Users in Settings
 explorer ms-settings:otherusers
+
 timeout 1
 ::--------------------Misc Policies-----------------------------------::
 
@@ -39,8 +40,8 @@ net accounts /uniquepw:10
 
 ::Enable SMB Signing Requirements
 echo SMB Client and Server Configurations
-powershell.exe Set-SmbClientConfiguration -RequireSecuritySignature $true
-powershell.exe Set-SmbServerConfiguration -RequireSecuritySignature $true
+powershell.exe Set-SmbClientConfiguration -RequireSecuritySignature $true -Force
+powershell.exe Set-SmbServerConfiguration -RequireSecuritySignature $true -Force
 
 :: Turn on Complexity Reqs
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t REG_DWORD /d 1 /f
@@ -49,8 +50,8 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t R
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v MaxIdleTime /t REG_DWORD /d 900000 /f
 
 :: Audit Policy Configurations
-auditpol /set /category:* /success:enable /success:enable
 auditpol /set /subcategory:* /success:enable /failure:enable
+
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
 :: Stops Macros and Enables Safe Mode
@@ -73,7 +74,7 @@ netsh advfirewall set allprofiles logging droppedconnections enable
 
 echo Log Dropped Connections and Configure Firewall IPsec to Enable Dynamic Firewall Adjustments
 netsh advfirewall set allprofiles logging droppedconnections enable
-netsh advfirewall set global statfulftp enable
+netsh advfirewall set global statefulftp enable
 netsh advfirewall set global statefulpptp enable
 
 :: Enable Windows Defender Network Protection
@@ -87,9 +88,8 @@ echo Flushing DNS and Establishing Auto Cleaning Services
 ipconfig /flushdns
 cleanmgr /autoclean
 
-::Powershell Firewall Configurations
+::PowerShell Firewall Configurations
 powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
-reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 0 /f
 
 ::Window Defender Firewall
 sc start mpssvc
@@ -102,7 +102,7 @@ sc config WinDefend start= auto
 ::---------------------Deleting Programs (Malicious)-----------------------::
 echo Removing Wireshark, Npcap, and BitTorrent
 "%ProgramFiles%\Wireshark\uninstall.exe" /S
-"%ProgramFiles%\Npcap\npcap.exe" /S
+"%ProgramFiles%\Npcap\uninstall.exe" /S
 "%ProgramFiles%\WinPcap\uninstall.exe" /S
 "%ProgramFiles%\BitTorrent\uninstall.exe" /S
 
@@ -110,12 +110,7 @@ echo Removing Wireshark, Npcap, and BitTorrent
 echo Disabling Insecure Services
 :: FTP Service
 sc stop ftpsvc
-sc config ftpsvc start= disabled
-
-::Plug n Play
-if ("sc query "PlugPlay" | find "RUNNING"" = "RUNNING") {
-sc stop PlugPlay}
-sc config PlugPlay start= manual
+sc config ftpsvc start= manual
 
 ::Remote Registry
 sc stop RemoteRegistry
@@ -131,7 +126,7 @@ sc config SNMPTRAP start= disabled
 
 ::Telephony
 sc stop tapisrv
-sc config tapisrv start= disabled
+sc config tapisrv start= manual
 
 ::Universal Plug n Play (host)
 sc stop upnphost
@@ -153,13 +148,13 @@ echo Doing Background work.....
 
 ::Removing Files in the Public Accessible Directory
 
-del /S C:\Users\Public\Documents\*
-del /S C:\Users\Public\Music\*
-del /S C:\Users\Public\Pictures\*
-del /S C:\Users\Public\Downloads\*
-del /S C:\Users\Public\Videos\*
+dir /A C:\Users\Public\Documents\*
+dir /A C:\Users\Public\Music\*
+dir /A C:\Users\Public\Pictures\*
+dir /A C:\Users\Public\Downloads\*
+dir /A C:\Users\Public\Videos\*
 
-echo Important Information Results saved to susfile_.txt
+echo Searched the Public Directory
 
 ::-------------------Installing Security Software-------------------::
 
@@ -170,22 +165,12 @@ wuauclt.exe /detectnow /updatenow
 setx /M MP_FORCE_USE_SANDBOX 1
 
 :: Update Windows Def. Signatures
-"%ProgramFiles%"\"Windows Defender"\MpCmdRun.exe -SignatureUpdate
-
-::Enable Periodic Scanning
-reg add "HKCU\SOFTWARE\Microsoft\Windows Defender" /v Passive Mode /t REG_DWORD /d 2 /f
-
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 
 ::-----------------Windows Update & Other Settings------------------::
 
 :: The command 'explorer ms-settings' opens the GUI --> ENABL SmartScreen - Edge Phishing Protector
 reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v EnabledV9 /t REG_DWORD /d 1 /f
-
-::Enabling EncryptedFileSystem Encryption
-fsutil behavior set disableencryption 0
-
-::Enforce Device Driver Signing
-BCDEDIT /set nointegritychecks OFF
 
 ::timeout is basically time.sleep(x) [timeout 500]
 
@@ -195,7 +180,6 @@ SystemPropertiesRemote.exe
 ::Prevent Remote Assistance
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Remote Assistance" /v fAllowToGetHelp /t REG_DWORD /d 0 /f
 
-explorer ms-settings:windowsupdate-action
 
 echo Completed Script!
 
