@@ -54,15 +54,6 @@ auditpol /set /subcategory:* /success:enable /failure:enable
 
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
-:: Stops Macros and Enables Safe Mode
-reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-reg add "HKCU\Software\Microsoft\Office\14.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-reg add "HKCU\Software\Microsoft\Office\15.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-reg add "HKCU\Software\Microsoft\Office\15.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-reg add "HKCU\Software\Microsoft\Office\16.0\Word\Options\WordMail" /v DontUpdateLinks /t REG_DWORD /d 00000001 /f
-
-
 echo Turning On All Firewalls!
 netsh advfirewall set currentprofile state on
 netsh advfirewall set domainprofile state on
@@ -166,6 +157,14 @@ setx /M MP_FORCE_USE_SANDBOX 1
 
 :: Update Windows Def. Signatures
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
+
+echo Updating Browsers...
+
+"C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua /installsource scheduler scheduler
+Taskkill /F /IM "chrome.exe"
+
+"C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua
+
 
 ::-----------------Windows Update & Other Settings------------------::
 
