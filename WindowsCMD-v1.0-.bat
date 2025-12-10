@@ -137,7 +137,7 @@ net user guest /active:no
 
 echo Doing Background work.....
 
-::Removing Files in the Public Accessible Directory
+::Searching for Files in the Public Accessible Directory
 
 dir /A C:\Users\Public\Documents\*
 dir /A C:\Users\Public\Music\*
@@ -159,11 +159,16 @@ setx /M MP_FORCE_USE_SANDBOX 1
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -SignatureUpdate
 
 echo Updating Browsers...
+if exist "C:\Program Files (x86)\Google\Update\" (
+	echo Updating Google
+  Taskkill /F /IM "chrome.exe"
+  "C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua
+)else (
+	echo Google does not exist on this Windows System
+)
+if exist "C:\
+PAUSE
 
-"C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua /installsource scheduler scheduler
-Taskkill /F /IM "chrome.exe"
-
-"C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua
 
 
 ::-----------------Windows Update & Other Settings------------------::
