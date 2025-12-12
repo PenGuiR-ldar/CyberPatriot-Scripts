@@ -11,6 +11,7 @@
 echo CyberPatriot: Windows Server 2022 Script (September)
 ::Command to find the Type of Windows System you are
 systeminfo | findstr /B /C:"OS Name"
+
 timeout 3
 
 ::------------------------Removing Users--------------------------------::
@@ -50,7 +51,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t R
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v MaxIdleTime /t REG_DWORD /d 900000 /f
 
 :: Audit Policy Configurations
-auditpol /set /subcategory:* /success:enable /failure:enable
+auditpol /set /category:* /success:enable /failure:enable
 
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
 
@@ -72,12 +73,13 @@ netsh advfirewall set global statefulpptp enable
 powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
 
 ::Disable NetBios over TCP
-powershell.exe (Get-WmiObject Win32_NetworkAdapterConfiguration -Filter IpEnabled="true").setTcpipNetbios(2)
+powershell.exe -command "(Get-WmiObject Win32_NetworkAdapterConfiguration -Filter 'IpEnabled=""true""') | ForEach-Object {$_.SetTcpipNetbios(2)}"
+
 
 ::Flush DNS and Auto-Clean
-echo Flushing DNS and Establishing Auto Cleaning Services
+echo Flushing DNS
 ipconfig /flushdns
-cleanmgr /autoclean
+
 
 ::PowerShell Firewall Configurations
 powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
@@ -99,6 +101,7 @@ echo Removing Wireshark, Npcap, and BitTorrent
 
 ::--------------------------Service Disabling—-------------------------------::
 echo Disabling Insecure Services
+
 :: FTP Service
 sc stop ftpsvc
 sc config ftpsvc start= manual
@@ -124,8 +127,10 @@ sc stop upnphost
 sc config upnphost start= disabled
 
 ::Windows Defender Advanced Threat Protection Service
-sc start Sense
+sc query Sense >nul 2>&1 && (
 sc config Sense start= auto
+sc start Sense
+)
 
 ::Windows Auto-Update Service
 sc start wuauserv
@@ -139,13 +144,29 @@ echo Doing Background work.....
 
 ::Searching for Files in the Public Accessible Directory
 
-dir /A C:\Users\Public\Documents\*
-dir /A C:\Users\Public\Music\*
-dir /A C:\Users\Public\Pictures\*
-dir /A C:\Users\Public\Downloads\*
-dir /A C:\Users\Public\Videos\*
+echo CyberPatriot Directories and Logs > CyberLogs.txt
 
-echo Searched the Public Directory
+echo. >> CyberLogs.txt
+dir /A C:\Users\Public\Documents\* >> CyberLogs.txt
+echo. >> CyberLogs.txt
+dir /A C:\Users\Public\Music\* >> CyberLogs.txt
+echo. >> CyberLogs.txt
+dir /A C:\Users\Public\Pictures\* >> CyberLogs.txt
+echo. >> CyberLogs.txt
+dir /A C:\Users\Public\Downloads\* >> CyberLogs.txt
+echo. >> CyberLogs.txt
+dir /A C:\Users\Public\Videos\* >> CyberLogs.txt
+echo. >> CyberLogs.txt
+
+echo Logging Functions Completed... or at least I think..
+
+:: 2>nul is redirection of error messages to random thing
+echo Mp3 files and Zip files >> CyberLogs.txt
+echo. >> CyberLogs.txt
+start /b cmd /c "dir /s /b C:\Users\*.mp3 2>nul >> CyberLogs.txt"
+echo. >> CyberLogs.txt
+start /b cmd /c "dir /s /b C:\Users\*.zip 2>nul >> CyberLogs.txt"
+
 
 ::-------------------Installing Security Software-------------------::
 
@@ -161,20 +182,18 @@ setx /M MP_FORCE_USE_SANDBOX 1
 echo Updating Browsers...
 if exist "C:\Program Files (x86)\Google\Update\" (
 	echo Updating Google
-  Taskkill /F /IM "chrome.exe"
-  "C:\Program Files(x86)\Google\Update\GoogleUpdate.exe" /ua
+  	Taskkill /F /IM "chrome.exe" 2>nul
+  	"C:\Program Files (x86)\Google\Update\GoogleUpdate.exe" /ua
 )else (
 	echo Google does not exist on this Windows System
 )
-if exist "C:\
-PAUSE
-
-
-
 ::-----------------Windows Update & Other Settings------------------::
 
-:: The command 'explorer ms-settings' opens the GUI --> ENABL SmartScreen - Edge Phishing Protector
-reg add "HKCU\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v EnabledV9 /t REG_DWORD /d 1 /f
+:: The command 'explorer ms-settings' opens the GUI
+:: Chromium Security Setting Configurations
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v SmartScreenEnabled /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v SmartScreenPuaEnabled /t REG_DWORD /d 1 /f
+
 
 ::timeout is basically time.sleep(x) [timeout 500]
 
