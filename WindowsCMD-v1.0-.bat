@@ -8,19 +8,18 @@
 :: The '@' symbol prevents the batch file from printing commands; neither this one
 @echo off
 
-echo CyberPatriot: Windows Server 2022 Script (September)
-::Command to find the Type of Windows System you are
-systeminfo | findstr /B /C:"OS Name"
+echo CyberPatriot: Windows Server 2022 Script (December)
+::Command to find the Current Windows Distribution
+
+::systeminfo | findstr /B /C:"OS Name"
 
 timeout 3
 
 ::------------------------Removing Users--------------------------------::
 
 :: Allows for Manipulation without Excess Code Storage & Need for Error Checking
-echo Redirecting you to Other Users in Settings
+echo Other User Work
 explorer ms-settings:otherusers
-
-timeout 1
 ::--------------------Misc Policies-----------------------------------::
 
 echo Security Time-Outs....
@@ -33,7 +32,7 @@ net accounts /minpwlen:13
 net accounts /minpwage:1
 
 echo Force Logoff, Unique Password Cache, Complexity Reqs
-::how long until expired/deleted accounts are forced logged off
+::How long until expired/deleted accounts are forced logged off
 net accounts /forcelogoff:5
 
 ::Change Unique Passwords Required Until Re-Use
@@ -50,7 +49,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "PasswordComplexity" /t R
 ::Session Idle Timeouts & Limits
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v MaxIdleTime /t REG_DWORD /d 900000 /f
 
-:: Audit Policy Configurations
+::Audit Policy Configurations
 auditpol /set /category:* /success:enable /failure:enable
 
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" /v EnablePlainTextPassword /t REG_DWORD /d 0 /f
@@ -79,7 +78,6 @@ powershell.exe -command "(Get-WmiObject Win32_NetworkAdapterConfiguration -Filte
 ::Flush DNS and Auto-Clean
 echo Flushing DNS
 ipconfig /flushdns
-
 
 ::PowerShell Firewall Configurations
 powershell -command "Set-MpPreference -DisableRealtimeMonitoring $false"
